@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gourmet Express - Web Ordering & Delivery System</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Main Style Sheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="dark-theme gold-theme">
+
+    <!-- Drifting Atmospheric Particles -->
+    <div class="particles-container" id="particles-bg-container"></div>
+
+    <!-- Mode Badge / Top Banner Status -->
+    <header class="app-header">
+        <div class="header-left">
+            <div class="brand-logo" onclick="app.setView('customer')">
+                <i class="fa-solid fa-fire-flame-curry logo-icon"></i>
+                <span class="logo-text">Vinay<span>Cafe</span></span>
+            </div>
+            
+            <div class="order-type-toggle">
+                <button id="btn-delivery" class="toggle-btn active" onclick="app.setOrderType('Delivery')">
+                    <i class="fa-solid fa-truck"></i> Delivery
+                </button>
+                <button id="btn-pickup" class="toggle-btn" onclick="app.setOrderType('Pickup')">
+                    <i class="fa-solid fa-store"></i> Pickup
+                </button>
+            </div>
+        </div>
+
+        <div class="header-center">
+            <div class="branch-selector-wrapper">
+                <i class="fa-solid fa-location-dot select-icon"></i>
+                <select id="select-city" onchange="app.handleCityChange()">
+                    <option value="">Select City</option>
+                </select>
+                <select id="select-branch" onchange="app.handleBranchChange()">
+                    <option value="">Select Branch</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="header-right">
+            <button class="header-action-btn track-btn" onclick="app.openTrackModal()">
+                <i class="fa-solid fa-magnifying-glass-location"></i> Track
+            </button>
+            
+            <button class="header-action-btn profile-btn" id="btn-profile" onclick="app.openLoginModal()">
+                <i class="fa-solid fa-circle-user"></i> <span id="profile-text">Login</span>
+            </button>
+
+            <!-- Dynamic Theme Selector Dropdown -->
+            <div class="theme-switcher-wrapper">
+                <button class="header-action-btn theme-btn" id="btn-theme-selector" onclick="app.toggleThemeDropdown(event)" title="Choose Visual Theme">
+                    <i class="fa-solid fa-palette"></i>
+                </button>
+                <div class="theme-dropdown" id="theme-dropdown-list">
+                    <div class="theme-opt active" onclick="app.setTheme('gold', this)" style="--theme-color: #ffd000">Gold Luxe</div>
+                    <div class="theme-opt" onclick="app.setTheme('crimson', this)" style="--theme-color: #ff3b30">Ruby Crimson</div>
+                    <div class="theme-opt" onclick="app.setTheme('matcha', this)" style="--theme-color: #34c759">Emerald Matcha</div>
+                    <div class="theme-opt" onclick="app.setTheme('sapphire', this)" style="--theme-color: #007aff">Sapphire Deep</div>
+                    <div class="theme-opt" onclick="app.setTheme('amethyst', this)" style="--theme-color: #af52de">Amethyst Glow</div>
+                    <div class="theme-opt" onclick="app.setTheme('rose', this)" style="--theme-color: #ff2d55">Rose Velvet</div>
+                </div>
+            </div>
+
+            <button class="header-action-btn settings-gear-btn" onclick="app.openSettingsModal()">
+                <i class="fa-solid fa-gear"></i>
+            </button>
+            
+            <button class="header-action-btn cart-btn" onclick="app.toggleCartDrawer()">
+                <i class="fa-solid fa-cart-shopping"></i> Cart
+                <span class="cart-badge" id="cart-badge-count">0</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="app-main-content">
+        
+        <!-- ================= CUSTOMER VIEW ================= -->
+        <section id="view-customer" class="view-panel active">
+            <!-- Dynamic Hero Carousel with Search Overlay -->
+            <div class="hero-carousel-container">
+                <div class="hero-carousel">
+                    <div class="carousel-inner" id="carousel-container">
+                        <!-- Dynamic Banner Slides (Images or GIFs) populated by JS -->
+                    </div>
+                    <button class="carousel-nav prev" onclick="app.prevBanner()"><i class="fa-solid fa-chevron-left"></i></button>
+                    <button class="carousel-nav next" onclick="app.nextBanner()"><i class="fa-solid fa-chevron-right"></i></button>
+                    <div class="carousel-dots" id="carousel-dots-container"></div>
+                </div>
+                
+                <!-- Floating Food Icons -->
+                <i class="fa-solid fa-pizza-slice floating-food float-1"></i>
+                <i class="fa-solid fa-burger floating-food float-2"></i>
+                <i class="fa-solid fa-pepper-hot floating-food float-3"></i>
+                <i class="fa-solid fa-drumstick-bite floating-food float-4"></i>
+                
+                <!-- Floating Zomato-Style Overlay Content -->
+                <div class="hero-search-overlay">
+                    <div class="hero-logo-box">
+                        <i class="fa-solid fa-pizza-slice hero-logo-icon"></i>
+                        <h1 class="hero-logo-text">Vinay<span>Cafe</span></h1>
+                    </div>
+                    <p class="hero-subtitle">Premium Taste • Express Delivery • Indian Flavors</p>
+                    <div class="hero-search-wrapper">
+                        <i class="fa-solid fa-magnifying-glass search-icon-main"></i>
+                        <input type="text" id="hero-menu-search" placeholder="Search for dishes, pizza, starters, desserts..." oninput="app.handleSearchInput(event)">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Instagram-Style circular stories bar -->
+            <div class="stories-bar-container">
+                <div class="stories-wrapper" id="stories-container">
+                    <!-- Dynamic stories generated by JS -->
+                </div>
+            </div>
+
+            <!-- Categories pills bar -->
+            <div class="categories-bar">
+                <div class="categories-wrapper" id="categories-container">
+                    <!-- Dynamic Category Pills -->
+                </div>
+            </div>
+
+            <!-- Menu Grid -->
+            <div class="menu-section">
+                <h2 class="section-title" id="current-category-title">Popular!</h2>
+                <div class="menu-grid" id="menu-grid-container">
+                    <!-- Dynamic Menu Cards -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= ADMIN DASHBOARD ================= -->
+        <section id="view-admin" class="view-panel">
+            <div class="dashboard-header">
+                <div class="db-title-area">
+                    <h1><i class="fa-solid fa-shield-halved"></i> Admin Control Panel</h1>
+                    <p>Manage items, categories, branches, and monitor real-time activity</p>
+                </div>
+                <div class="db-actions">
+                    <button class="btn btn-primary" onclick="app.openAddItemModal()">
+                        <i class="fa-solid fa-plus"></i> Add New Item
+                    </button>
+                    <button class="btn btn-secondary" onclick="app.setView('customer')">
+                        <i class="fa-solid fa-arrow-left"></i> Back to Store
+                    </button>
+                </div>
+            </div>
+
+            <!-- Admin Nav Tabs -->
+            <div class="dashboard-tabs">
+                <button class="tab-btn active" onclick="app.changeAdminTab('items')">Menu Items</button>
+                <button class="tab-btn" onclick="app.changeAdminTab('categories')">Categories</button>
+                <button class="tab-btn" onclick="app.changeAdminTab('branches')">Branches</button>
+                <button class="tab-btn" onclick="app.changeAdminTab('banners')">Banners</button>
+                <button class="tab-btn" onclick="app.changeAdminTab('users')">Users</button>
+                <button class="tab-btn" onclick="app.changeAdminTab('orders')">Orders Manager</button>
+                <button class="tab-btn" onclick="app.changeAdminTab('coupons')">Coupons Manager</button>
+                <button class="tab-btn" onclick="app.changeAdminTab('analytics')">Revenue & Analytics</button>
+                <button class="tab-btn" onclick="app.changeAdminTab('settings')">Store Settings</button>
+            </div>
+
+            <!-- Admin Content Area -->
+            <div class="dashboard-content" id="admin-content-container">
+                <!-- Loaded dynamically depending on tab -->
+            </div>
+        </section>
+
+        <!-- ================= KITCHEN DASHBOARD ================= -->
+        <section id="view-kitchen" class="view-panel">
+            <div class="dashboard-header">
+                <div class="db-title-area">
+                    <h1><i class="fa-solid fa-fire-burner"></i> Kitchen Order Monitor</h1>
+                    <p>Real-time queue auto-refreshes every 2 seconds</p>
+                </div>
+                <div class="db-actions flex-align-center">
+                    <div class="refresh-badge">
+                        <i class="fa-solid fa-arrows-rotate spinner" id="kitchen-refresh-spinner"></i>
+                        <span>Auto-refreshing</span>
+                    </div>
+                    <button class="btn btn-secondary" onclick="app.setView('customer')">
+                        <i class="fa-solid fa-arrow-left"></i> Back to Store
+                    </button>
+                </div>
+            </div>
+
+            <div class="kitchen-board">
+                <!-- Pending Column -->
+                <div class="kitchen-column">
+                    <div class="col-header pending-header">
+                        <h2>New Orders <span class="badge" id="count-pending">0</span></h2>
+                    </div>
+                    <div class="order-cards-list" id="kitchen-pending-orders">
+                        <!-- Card dynamic -->
+                    </div>
+                </div>
+
+                <!-- Preparing Column -->
+                <div class="kitchen-column">
+                    <div class="col-header preparing-header">
+                        <h2>Preparing <span class="badge" id="count-preparing">0</span></h2>
+                    </div>
+                    <div class="order-cards-list" id="kitchen-preparing-orders">
+                        <!-- Card dynamic -->
+                    </div>
+                </div>
+
+                <!-- Ready Column -->
+                <div class="kitchen-column">
+                    <div class="col-header ready-header">
+                        <h2>Ready for Pickup / Delivery <span class="badge" id="count-ready">0</span></h2>
+                    </div>
+                    <div class="order-cards-list" id="kitchen-ready-orders">
+                        <!-- Card dynamic -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= RIDER DASHBOARD ================= -->
+        <section id="view-rider" class="view-panel">
+            <div class="dashboard-header">
+                <div class="db-title-area">
+                    <h1><i class="fa-solid fa-motorcycle"></i> Rider Delivery Dashboard</h1>
+                    <p id="rider-welcome-msg">Welcome, Rider!</p>
+                </div>
+                <div class="db-actions">
+                    <button class="btn btn-secondary" onclick="app.setView('customer')">
+                        <i class="fa-solid fa-arrow-left"></i> Back to Store
+                    </button>
+                </div>
+            </div>
+
+            <div class="rider-stats-bar">
+                <div class="stat-box">
+                    <span class="label">Total Deliveries Today</span>
+                    <span class="value" id="rider-stat-count">0</span>
+                </div>
+                <div class="stat-box accent-box">
+                    <span class="label">Total Earnings (Flat $5/Order)</span>
+                    <span class="value" id="rider-stat-earnings">$0.00</span>
+                </div>
+            </div>
+
+            <div class="rider-dashboard-layout">
+                <!-- Available pickups -->
+                <div class="rider-column">
+                    <div class="col-header">
+                        <h2>Available Pickups</h2>
+                    </div>
+                    <div class="order-cards-list" id="rider-available-pickups">
+                        <!-- Dynamic list of orders in 'Ready' status and not assigned to anyone -->
+                    </div>
+                </div>
+
+                <!-- Assigned Delivery -->
+                <div class="rider-column">
+                    <div class="col-header accent-header">
+                        <h2>Your Active Deliveries</h2>
+                    </div>
+                    <div class="order-cards-list" id="rider-assigned-deliveries">
+                        <!-- Dynamic list of orders assigned to this rider in 'Out for Delivery' status -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ================= MODALS & DRAWERS ================= -->
+
+    <!-- Shopping Cart Drawer -->
+    <div id="cart-drawer" class="cart-drawer-overlay">
+        <div class="cart-drawer-content">
+            <div class="cart-header">
+                <h2>Your Basket</h2>
+                <button class="close-btn" onclick="app.toggleCartDrawer()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="cart-items-container" id="cart-items-list">
+                <!-- Cart items list populated dynamically -->
+            </div>
+
+            <div class="cart-checkout-form" id="checkout-form-container">
+                <h3>Contact & Delivery Information</h3>
+                <div class="form-group">
+                    <label for="cust-name">Full Name <span class="required">*</span></label>
+                    <input type="text" id="cust-name" placeholder="John Doe" required>
+                </div>
+                <div class="form-group">
+                    <label for="cust-phone">Phone Number <span class="required">*</span></label>
+                    <input type="tel" id="cust-phone" placeholder="+1 (234) 567-890" required>
+                </div>
+                <div class="form-group">
+                    <label for="cust-email">Email Address <span class="required">*</span></label>
+                    <input type="email" id="cust-email" placeholder="john.doe@example.com" required>
+                </div>
+                <div class="form-group" id="delivery-address-group">
+                    <label for="cust-address">Delivery Address <span class="required">*</span></label>
+                    <textarea id="cust-address" placeholder="123 Main St, Apartment 4B" rows="2" required></textarea>
+                </div>
+            </div>
+
+            <!-- Interactive Delivery Progress & Promo Code Panel -->
+            <div class="cart-drawer-extras">
+                <!-- Free Delivery Progress -->
+                <div class="free-delivery-progress-wrapper">
+                    <div class="fd-progress-info">
+                        <i class="fa-solid fa-truck-fast"></i>
+                        <span id="fd-progress-text">Add ₹150.00 more for Free Delivery!</span>
+                    </div>
+                    <div class="fd-progress-track">
+                        <div class="fd-progress-fill" id="fd-progress-bar-fill" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <!-- Promo Input Group -->
+                <div class="promo-field-wrapper">
+                    <div class="promo-input-row">
+                        <input type="text" id="promo-code-input" placeholder="Enter Coupon Code (e.g. WELCOME10)">
+                        <button class="btn btn-dark" onclick="app.applyPromoCode()">Apply</button>
+                    </div>
+                    <div id="promo-success-msg" class="promo-msg text-yellow hidden"></div>
+                    <div id="promo-error-msg" class="promo-msg text-danger hidden" style="color: var(--accent-red)"></div>
+                </div>
+
+                <!-- Interactive Offers Picker -->
+                <div class="offers-picker-container">
+                    <button class="offers-toggle-btn" id="btn-offers-picker-toggle" onclick="app.toggleOffersPicker(event)">
+                        <i class="fa-solid fa-tags text-yellow"></i> <span>View Available Offers</span> <i class="fa-solid fa-chevron-down toggle-icon" id="offers-chevron"></i>
+                    </button>
+                    <div class="offers-dropdown-list hidden" id="offers-picker-list">
+                        <!-- Dynamic active offers list populated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="cart-summary">
+                <div class="summary-line">
+                    <span>Subtotal</span>
+                    <span id="summary-subtotal">₹0.00</span>
+                </div>
+                <div class="summary-line hidden" id="summary-discount-row">
+                    <span>Promo Discount (<strong id="summary-promo-label" class="text-yellow"></strong>)</span>
+                    <span id="summary-discount">-₹0.00</span>
+                </div>
+                <div class="summary-line">
+                    <span id="delivery-fee-label">Delivery Fee</span>
+                    <span id="summary-delivery">₹0.00</span>
+                </div>
+                <div class="summary-line">
+                    <span>Sales Tax</span>
+                    <span id="summary-tax">₹0.00</span>
+                </div>
+                <div class="summary-line grand-total">
+                    <span>Total Amount</span>
+                    <span id="summary-total">₹0.00</span>
+                </div>
+                
+                <button class="btn btn-checkout btn-primary" onclick="app.submitCheckout()">
+                    <i class="fa-solid fa-circle-check"></i> Complete Checkout
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Live Tracking Modal -->
+    <div id="track-modal" class="modal-overlay">
+        <div class="modal-content tracking-modal-width">
+            <div class="modal-header">
+                <h2><i class="fa-solid fa-map-location-dot"></i> Order Tracking Slip</h2>
+                <button class="close-btn" onclick="app.closeTrackModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="track-search-box">
+                    <input type="text" id="track-order-id-input" placeholder="Enter Order ID (e.g. ORD-123456)">
+                    <button class="btn btn-primary" onclick="app.trackOrderFromInput()"><i class="fa-solid fa-magnifying-glass"></i> Track</button>
+                </div>
+
+                <div id="tracking-details-area" class="hidden">
+                    <!-- Tracking Timeline -->
+                    <div class="tracking-timeline-container">
+                        <div class="timeline-step" id="step-Pending">
+                            <div class="step-icon"><i class="fa-solid fa-receipt"></i></div>
+                            <div class="step-label">Order Placed</div>
+                        </div>
+                        <div class="timeline-step" id="step-Preparing">
+                            <div class="step-icon"><i class="fa-solid fa-kitchen-set"></i></div>
+                            <div class="step-label">Kitchen Preparing</div>
+                        </div>
+                        <div class="timeline-step" id="step-Ready">
+                            <div class="step-icon"><i class="fa-solid fa-pizza-slice"></i></div>
+                            <div class="step-label">Ready / Packaged</div>
+                        </div>
+                        <div class="timeline-step" id="step-Out-for-Delivery">
+                            <div class="step-icon"><i class="fa-solid fa-motorcycle"></i></div>
+                            <div class="step-label">On The Way</div>
+                        </div>
+                        <div class="timeline-step" id="step-Delivered">
+                            <div class="step-icon"><i class="fa-solid fa-house-chimney-check"></i></div>
+                            <div class="step-label">Delivered</div>
+                        </div>
+                    </div>
+
+                    <!-- Order Slip Details -->
+                    <div class="order-slip-receipt" id="order-slip-receipt-content">
+                        <!-- Dynamic Receipt HTML -->
+                    </div>
+                </div>
+                
+                <div id="tracking-error" class="error-msg hidden"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="modal-overlay">
+        <div class="modal-content modal-auth-width">
+            <div class="modal-header">
+                <h2><i class="fa-solid fa-lock"></i> Staff Dashboard Login</h2>
+                <button class="close-btn" onclick="app.closeLoginModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="login-form" onsubmit="app.handleLogin(event)">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <div class="input-icon-wrapper">
+                            <i class="fa-solid fa-user"></i>
+                            <input type="text" id="username" placeholder="Enter username" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <div class="input-icon-wrapper">
+                            <i class="fa-solid fa-key"></i>
+                            <input type="password" id="password" placeholder="Enter password" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+                    
+                    <div id="login-error-msg" class="error-msg hidden"></div>
+                </form>
+
+                <!-- Sandbox Helpers for quick logins -->
+                <div class="sandbox-login-helpers">
+                    <span class="sandbox-title">Sandbox Quick Roles (Auto-Fill)</span>
+                    <div class="helper-buttons">
+                        <button class="btn btn-sm btn-dark" onclick="app.quickFillLogin('admin', 'admin')">Admin</button>
+                        <button class="btn btn-sm btn-dark" onclick="app.quickFillLogin('kitchen', 'kitchen')">Kitchen</button>
+                        <button class="btn btn-sm btn-dark" onclick="app.quickFillLogin('rider', 'rider')">Rider</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal (Google Apps Script Integration Setup) -->
+    <div id="settings-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fa-solid fa-gears"></i> Backend Integrations Settings</h2>
+                <button class="close-btn" onclick="app.closeSettingsModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Database Mode</label>
+                    <div class="radio-group-mode">
+                        <label class="radio-label">
+                            <input type="radio" name="db-mode" value="mock" checked onchange="app.handleDbModeChange('mock')">
+                            <span><strong>Mock Sandbox Mode</strong> (Uses LocalStorage)</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="db-mode" value="live" onchange="app.handleDbModeChange('live')">
+                            <span><strong>Live Production Mode</strong> (Google Sheets & Apps Script)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group id-live-only hidden" id="gas-url-group">
+                    <label for="gas-endpoint-url">Google Apps Script Web App Endpoint URL</label>
+                    <input type="url" id="gas-endpoint-url" placeholder="https://script.google.com/macros/s/.../exec">
+                    <small class="help-text">Enter the deployed Web App API URL. Ensure file permissions are set to "Anyone" in Google Apps Script.</small>
+                </div>
+
+                <div class="modal-actions-bar">
+                    <button class="btn btn-primary" onclick="app.saveSettings()">Save Settings</button>
+                    <button class="btn btn-warning" id="btn-init-db" onclick="app.triggerDbInit()">Initialize / Reset Database</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Form Modal for Menu Items (Add/Edit) -->
+    <div id="admin-item-modal" class="modal-overlay">
+        <div class="modal-content admin-form-modal-width">
+            <div class="modal-header">
+                <h2 id="item-modal-title">Add Menu Item</h2>
+                <button class="close-btn" onclick="app.closeItemModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="admin-item-form" onsubmit="app.handleSaveItem(event)">
+                    <input type="hidden" id="item-form-id">
+                    
+                    <div class="form-group">
+                        <label for="item-name">Item Name *</label>
+                        <input type="text" id="item-name" required placeholder="e.g. Hawaiian Sizzler Pizza">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group flex-1">
+                            <label for="item-price">Price ($) *</label>
+                            <input type="number" id="item-price" step="0.01" required placeholder="14.99">
+                        </div>
+                        <div class="form-group flex-1">
+                            <label for="item-category">Category *</label>
+                            <select id="item-category" required>
+                                <!-- Category list dynamic options -->
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="item-desc">Description</label>
+                        <textarea id="item-desc" rows="3" placeholder="Explain the ingredients, size, preparation..."></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group flex-1">
+                            <label for="item-badge">Status Badge Tag</label>
+                            <select id="item-badge">
+                                <option value="">None</option>
+                                <option value="New">New</option>
+                                <option value="Popular!">Popular!</option>
+                                <option value="Hot">Hot</option>
+                                <option value="Discount 10%">Discount 10%</option>
+                                <option value="Discount 20%">Discount 20%</option>
+                            </select>
+                        </div>
+                        <div class="form-group flex-1">
+                            <label for="item-branches">Available Branches</label>
+                            <select id="item-branches">
+                                <option value="All">All Branches</option>
+                                <option value="New York">New York Branches Only</option>
+                                <option value="Los Angeles">Los Angeles Branches Only</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group image-upload-fieldset">
+                        <label>Menu Item Image</label>
+                        
+                        <div class="image-source-toggle">
+                            <label class="radio-label"><input type="radio" name="img-src" value="url" checked onchange="app.toggleImageSource('url')"> Direct Image URL</label>
+                            <label class="radio-label"><input type="radio" name="img-src" value="upload" onchange="app.toggleImageSource('upload')"> Upload to Google Drive</label>
+                        </div>
+
+                        <!-- Option A: Direct Image URL -->
+                        <div class="img-input-container" id="img-url-container">
+                            <input type="url" id="item-image-url" placeholder="https://images.unsplash.com/photo-...">
+                            <small class="help-text">Paste a web link to a picture.</small>
+                        </div>
+
+                        <!-- Option B: Upload File (will be Base64-transferred) -->
+                        <div class="img-input-container hidden" id="img-upload-container">
+                            <div class="file-uploader-dragbox">
+                                <i class="fa-solid fa-cloud-arrow-up"></i>
+                                <p>Click to select or drag files here</p>
+                                <input type="file" id="item-image-file" accept="image/*" onchange="app.handleImageFileSelect(event)">
+                            </div>
+                            <div id="image-upload-preview-filename" class="help-text text-yellow"></div>
+                        </div>
+
+                        <!-- Small Image preview block -->
+                        <div class="item-form-image-preview mt-2">
+                            <img id="item-image-preview-element" src="https://images.unsplash.com/photo-1513104890138-7c749659a591?w=200" alt="Preview Image" style="max-height: 80px; border-radius: 6px; border: 1px dashed rgba(255, 255, 255, 0.2);">
+                        </div>
+                    </div>
+
+                    <div class="form-group checkbox-wrapper">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="item-available" checked>
+                            <span>Item is currently available in menu stock</span>
+                        </label>
+                    </div>
+
+                    <div class="modal-actions-bar mt-3">
+                        <button type="button" class="btn btn-secondary" onclick="app.closeItemModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="btn-save-item-submit">Save Product</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Generic Admin Modals for Categories, Branches, Banners, Users -->
+    <div id="admin-generic-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="generic-modal-title">Manage Entry</h2>
+                <button class="close-btn" onclick="app.closeGenericModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body" id="generic-modal-body-content">
+                <!-- Populated dynamically via JS code -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Detail Customization Modal -->
+    <div id="product-detail-modal" class="modal-overlay">
+        <div class="modal-content product-detail-modal-width">
+            <div class="modal-header">
+                <h2><i class="fa-solid fa-utensils"></i> Customize Dish</h2>
+                <button class="close-btn" onclick="app.closeProductDetailModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body product-modal-body">
+                <div class="p-detail-layout">
+                    <div class="p-detail-img-wrapper">
+                        <img id="p-detail-img" src="" alt="Product Image">
+                        <div id="p-detail-badge" class="p-detail-badge-tag"></div>
+                    </div>
+                    <div class="p-detail-info">
+                        <h2 id="p-detail-name">Dish Name</h2>
+                        <p id="p-detail-desc" class="p-detail-description">Dish description goes here.</p>
+                        
+                        <div class="p-customization-section">
+                            <!-- Size Selector -->
+                            <div class="p-custom-group">
+                                <h3>Select Size</h3>
+                                <div class="p-size-options">
+                                    <label class="p-option-card active" id="size-reg-label">
+                                        <input type="radio" name="p-size" value="regular" checked onchange="app.updateProductModalPrice()">
+                                        <span>Regular</span>
+                                    </label>
+                                    <label class="p-option-card" id="size-large-label">
+                                        <input type="radio" name="p-size" value="large" onchange="app.updateProductModalPrice()">
+                                        <span>Large (+₹80.00)</span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <!-- Add-ons Selection -->
+                            <div class="p-custom-group">
+                                <h3>Extra Add-ons</h3>
+                                <div class="p-addons-list">
+                                    <label class="p-addon-item">
+                                        <input type="checkbox" name="p-addon" value="Extra Cheese" data-price="49" onchange="app.updateProductModalPrice()">
+                                        <span>Extra Cheese (+₹49.00)</span>
+                                    </label>
+                                    <label class="p-addon-item">
+                                        <input type="checkbox" name="p-addon" value="Special Spicy Sauce" data-price="19" onchange="app.updateProductModalPrice()">
+                                        <span>Special Spicy Sauce (+₹19.00)</span>
+                                    </label>
+                                    <label class="p-addon-item">
+                                        <input type="checkbox" name="p-addon" value="Double Veggies" data-price="39" onchange="app.updateProductModalPrice()">
+                                        <span>Double Veggies (+₹39.00)</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Special Instructions -->
+                            <div class="p-custom-group">
+                                <h3>Special Requests</h3>
+                                <textarea id="p-special-notes" placeholder="E.g. no onions, extra spicy, sauce on side..." rows="2"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Footer Actions -->
+                        <div class="p-detail-footer">
+                            <div class="p-qty-selector">
+                                <button class="qty-btn" onclick="app.changeProductModalQty(-1)"><i class="fa-solid fa-minus"></i></button>
+                                <span id="p-detail-qty">1</span>
+                                <button class="qty-btn" onclick="app.changeProductModalQty(1)"><i class="fa-solid fa-plus"></i></button>
+                            </div>
+                            <button class="btn btn-primary btn-add-detail" id="btn-add-detail-submit" onclick="app.addProductModalToCart()">
+                                <i class="fa-solid fa-basket-shopping"></i> Add to Basket - <span id="p-detail-total-price">₹0.00</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rider GPS Navigation Map Modal -->
+    <div id="rider-map-modal" class="modal-overlay">
+        <div class="modal-content rider-map-modal-width">
+            <div class="modal-header">
+                <h2><i class="fa-solid fa-route text-yellow"></i> Live Delivery Navigator</h2>
+                <button class="close-btn" onclick="app.closeRiderMapModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="rider-map-layout">
+                    <div class="rider-map-canvas-wrapper">
+                        <!-- Custom animated SVG Map -->
+                        <svg class="rider-svg-map" viewBox="0 0 600 350" width="100%" height="100%">
+                            <!-- Grid Background -->
+                            <defs>
+                                <pattern id="mapGrid" width="30" height="30" patternUnits="userSpaceOnUse">
+                                    <path d="M 30 0 L 0 0 0 30" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+                                </pattern>
+                            </defs>
+                            <rect width="600" height="350" fill="url(#mapGrid)" rx="10" />
+                            
+                            <!-- Roads / Dotted Routes -->
+                            <path id="deliveryPath" d="M 60,250 C 120,250 120,100 200,100 C 280,100 280,280 380,280 C 480,280 480,80 540,80" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="6" stroke-linecap="round"/>
+                            <path id="deliveryPathActive" d="M 60,250 C 120,250 120,100 200,100 C 280,100 280,280 380,280 C 480,280 480,80 540,80" fill="none" stroke="var(--primary-color)" stroke-width="4" stroke-linecap="round" stroke-dasharray="1000" stroke-dashoffset="1000"/>
+                            
+                            <!-- Cafe Node -->
+                            <g transform="translate(60,250)">
+                                <circle r="16" fill="var(--bg-dark-base)" stroke="var(--primary-color)" stroke-width="3" />
+                                <text y="4" font-family="FontAwesome" font-size="12" fill="var(--primary-color)" text-anchor="middle">&#xf54e;</text>
+                                <text x="22" y="5" fill="#fff" font-size="11" font-weight="700">Cafe</text>
+                            </g>
+                            
+                            <!-- Customer Node -->
+                            <g transform="translate(540,80)">
+                                <circle r="16" fill="var(--bg-dark-base)" stroke="var(--accent-green)" stroke-width="3" />
+                                <text y="4" font-family="FontAwesome" font-size="12" fill="var(--accent-green)" text-anchor="middle">&#xf015;</text>
+                                <text x="-75" y="5" fill="#fff" font-size="11" font-weight="700">Customer</text>
+                            </g>
+                            
+                            <!-- Motorcycle Rider Pin -->
+                            <g id="riderPin" transform="translate(60,250)" style="visibility: hidden;">
+                                <circle r="18" fill="var(--primary-color)" class="pulse-ring-map" style="opacity: 0.4;" />
+                                <circle r="14" fill="var(--primary-color)" />
+                                <text y="4" font-family="FontAwesome" font-size="14" fill="#000" text-anchor="middle">&#xf21c;</text>
+                            </g>
+                        </svg>
+                    </div>
+                    
+                    <div class="rider-map-logs-wrapper">
+                        <h3>Route Navigation Logs</h3>
+                        <div class="rider-logs-list" id="rider-logs-list-container">
+                            <!-- Real-time simulation reports -->
+                        </div>
+                        <div class="rider-nav-actions">
+                            <button id="btn-start-nav" class="btn btn-primary btn-block" onclick="app.startRiderMapSimulation()">
+                                <i class="fa-solid fa-play"></i> Start Driving Route
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fullscreen Loader Overlay -->
+    <div id="app-global-loader" class="global-loader-overlay hidden">
+        <div class="loader-spinner-container">
+            <i class="fa-solid fa-circle-notch fa-spin spinner-large text-yellow"></i>
+            <h3 id="app-loader-text" class="mt-2 text-white">Contacting Database...</h3>
+        </div>
+    </div>
+
+    <!-- Main JavaScript Logic -->
+    <script src="app.js"></script>
+</body>
+</html>
