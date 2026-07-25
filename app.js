@@ -50,6 +50,20 @@ class WebOrderingApp {
     // INITIALIZATION & CONFIGURATION
     // ==========================================================================
     async init() {
+        // Redefine window.alert to route to custom premium toast notifications
+        window.alert = (message) => {
+            let type = 'info';
+            const msgLower = String(message || '').toLowerCase();
+            if (msgLower.includes('success') || msgLower.includes('saved') || msgLower.includes('successfully') || msgLower.includes('configured')) {
+                type = 'success';
+            } else if (msgLower.includes('fail') || msgLower.includes('error') || msgLower.includes('invalid') || msgLower.includes('wrong') || msgLower.includes('cannot')) {
+                type = 'error';
+            } else if (msgLower.includes('empty') || msgLower.includes('select') || msgLower.includes('complete') || msgLower.includes('warning') || msgLower.includes('sure') || msgLower.includes('before checkout')) {
+                type = 'warning';
+            }
+            this.showNotification(message, type);
+        };
+
         this.loadSettingsFromStorage();
         this.initMockDatabase();
         await this.loadDatabase();
@@ -142,7 +156,26 @@ class WebOrderingApp {
             return this.mockApiCall(action, data);
         }
 
-        this.showLoader(`Contacting Sheets Database (${action})...`);
+        let loaderText = 'Syncing data...';
+        switch (action) {
+            case 'init': loaderText = 'Loading store details...'; break;
+            case 'getOrders': loaderText = 'Fetching orders list...'; break;
+            case 'getUsers': loaderText = 'Loading user accounts...'; break;
+            case 'saveItem': loaderText = 'Saving menu item...'; break;
+            case 'deleteItem': loaderText = 'Deleting menu item...'; break;
+            case 'saveCategory': loaderText = 'Saving category...'; break;
+            case 'deleteCategory': loaderText = 'Deleting category...'; break;
+            case 'saveBranch': loaderText = 'Saving branch location...'; break;
+            case 'deleteBranch': loaderText = 'Deleting branch...'; break;
+            case 'saveBanner': loaderText = 'Saving banner...'; break;
+            case 'deleteBanner': loaderText = 'Deleting banner...'; break;
+            case 'submitOrder': loaderText = 'Placing your order...'; break;
+            case 'updateOrderStatus': loaderText = 'Updating order status...'; break;
+            case 'cancelOrder': loaderText = 'Cancelling order...'; break;
+            case 'saveSettings': loaderText = 'Updating store settings...'; break;
+            default: loaderText = 'Loading database...'; break;
+        }
+        this.showLoader(loaderText);
         try {
             const response = await fetch(this.gasUrl, {
                 method: 'POST',
@@ -953,6 +986,10 @@ class WebOrderingApp {
         const container = document.getElementById('cart-items-list');
         container.innerHTML = '';
 
+        const checkoutForm = document.getElementById('checkout-form-container');
+        const cartExtras = document.getElementById('cart-drawer-extras');
+        const cartSummary = document.getElementById('cart-summary-container');
+
         if (this.cart.length === 0) {
             container.innerHTML = `
                 <div class="empty-cart-view">
@@ -973,8 +1010,18 @@ class WebOrderingApp {
             document.getElementById('fd-progress-bar-fill').style.width = '0%';
             document.getElementById('fd-progress-bar-fill').classList.remove('completed');
             document.getElementById('fd-progress-text').textContent = 'Add items to get Free Delivery!';
+
+            // Hide empty cart checkout parts
+            if (checkoutForm) checkoutForm.classList.add('hidden');
+            if (cartExtras) cartExtras.classList.add('hidden');
+            if (cartSummary) cartSummary.classList.add('hidden');
             return;
         }
+
+        // Show cart checkout parts if items exist
+        if (checkoutForm) checkoutForm.classList.remove('hidden');
+        if (cartExtras) cartExtras.classList.remove('hidden');
+        if (cartSummary) cartSummary.classList.remove('hidden');
 
         this.cart.forEach((item, idx) => {
             // Check notes details
@@ -2421,6 +2468,42 @@ class WebOrderingApp {
 
     hideLoader() {
         document.getElementById('app-global-loader').classList.add('hidden');
+    }
+
+    showNotification(message, type = 'info') {
+        let container = document.getElementById('toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'toast-container';
+            container.className = 'toast-container';
+            document.body.appendChild(container);
+        }
+
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        
+        let icon = 'fa-circle-info';
+        if (type === 'success') icon = 'fa-circle-check';
+        if (type === 'error') icon = 'fa-circle-xmark';
+        if (type === 'warning') icon = 'fa-triangle-exclamation';
+
+        toast.innerHTML = `
+            <div class="toast-content">
+                <i class="fa-solid ${icon}"></i>
+                <span>${message}</span>
+            </div>
+            <button class="toast-close" onclick="this.parentElement.classList.add('fade-out'); setTimeout(() => this.parentElement.remove(), 300);"><i class="fa-solid fa-xmark"></i></button>
+        `;
+
+        container.appendChild(toast);
+
+        // Auto remove animation after 4 seconds
+        setTimeout(() => {
+            if (toast.parentElement) {
+                toast.classList.add('fade-out');
+                setTimeout(() => toast.remove(), 300);
+            }
+        }, 4000);
     }
 
     bindEvents() {

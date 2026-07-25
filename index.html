@@ -289,65 +289,68 @@
                 <button class="close-btn" onclick="app.toggleCartDrawer()"><i class="fa-solid fa-xmark"></i></button>
             </div>
             
-            <div class="cart-items-container" id="cart-items-list">
-                <!-- Cart items list populated dynamically -->
+            <!-- Wrapper for scrollable elements to fix double scrollbars & mobile clutter -->
+            <div class="cart-drawer-body" id="cart-drawer-body">
+                <div class="cart-items-container" id="cart-items-list">
+                    <!-- Cart items list populated dynamically -->
+                </div>
+
+                <div class="cart-checkout-form" id="checkout-form-container">
+                    <h3>Contact & Delivery Information</h3>
+                    <div class="form-group">
+                        <label for="cust-name">Full Name <span class="required">*</span></label>
+                        <input type="text" id="cust-name" placeholder="John Doe" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="cust-phone">Phone Number <span class="required">*</span></label>
+                        <input type="tel" id="cust-phone" placeholder="+1 (234) 567-890" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="cust-email">Email Address <span class="required">*</span></label>
+                        <input type="email" id="cust-email" placeholder="john.doe@example.com" required>
+                    </div>
+                    <div class="form-group" id="delivery-address-group">
+                        <label for="cust-address">Delivery Address <span class="required">*</span></label>
+                        <textarea id="cust-address" placeholder="123 Main St, Apartment 4B" rows="2" required></textarea>
+                    </div>
+                </div>
+
+                <!-- Interactive Delivery Progress & Promo Code Panel -->
+                <div class="cart-drawer-extras" id="cart-drawer-extras">
+                    <!-- Free Delivery Progress -->
+                    <div class="free-delivery-progress-wrapper">
+                        <div class="fd-progress-info">
+                            <i class="fa-solid fa-truck-fast"></i>
+                            <span id="fd-progress-text">Add ₹150.00 more for Free Delivery!</span>
+                        </div>
+                        <div class="fd-progress-track">
+                            <div class="fd-progress-fill" id="fd-progress-bar-fill" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Promo Input Group -->
+                    <div class="promo-field-wrapper">
+                        <div class="promo-input-row">
+                            <input type="text" id="promo-code-input" placeholder="Enter Coupon Code (e.g. WELCOME10)">
+                            <button class="btn btn-dark" onclick="app.applyPromoCode()">Apply</button>
+                        </div>
+                        <div id="promo-success-msg" class="promo-msg text-yellow hidden"></div>
+                        <div id="promo-error-msg" class="promo-msg text-danger hidden" style="color: var(--accent-red)"></div>
+                    </div>
+
+                    <!-- Interactive Offers Picker -->
+                    <div class="offers-picker-container">
+                        <button class="offers-toggle-btn" id="btn-offers-picker-toggle" onclick="app.toggleOffersPicker(event)">
+                            <i class="fa-solid fa-tags text-yellow"></i> <span>View Available Offers</span> <i class="fa-solid fa-chevron-down toggle-icon" id="offers-chevron"></i>
+                        </button>
+                        <div class="offers-dropdown-list hidden" id="offers-picker-list">
+                            <!-- Dynamic active offers list populated by JS -->
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="cart-checkout-form" id="checkout-form-container">
-                <h3>Contact & Delivery Information</h3>
-                <div class="form-group">
-                    <label for="cust-name">Full Name <span class="required">*</span></label>
-                    <input type="text" id="cust-name" placeholder="John Doe" required>
-                </div>
-                <div class="form-group">
-                    <label for="cust-phone">Phone Number <span class="required">*</span></label>
-                    <input type="tel" id="cust-phone" placeholder="+1 (234) 567-890" required>
-                </div>
-                <div class="form-group">
-                    <label for="cust-email">Email Address <span class="required">*</span></label>
-                    <input type="email" id="cust-email" placeholder="john.doe@example.com" required>
-                </div>
-                <div class="form-group" id="delivery-address-group">
-                    <label for="cust-address">Delivery Address <span class="required">*</span></label>
-                    <textarea id="cust-address" placeholder="123 Main St, Apartment 4B" rows="2" required></textarea>
-                </div>
-            </div>
-
-            <!-- Interactive Delivery Progress & Promo Code Panel -->
-            <div class="cart-drawer-extras">
-                <!-- Free Delivery Progress -->
-                <div class="free-delivery-progress-wrapper">
-                    <div class="fd-progress-info">
-                        <i class="fa-solid fa-truck-fast"></i>
-                        <span id="fd-progress-text">Add ₹150.00 more for Free Delivery!</span>
-                    </div>
-                    <div class="fd-progress-track">
-                        <div class="fd-progress-fill" id="fd-progress-bar-fill" style="width: 0%"></div>
-                    </div>
-                </div>
-
-                <!-- Promo Input Group -->
-                <div class="promo-field-wrapper">
-                    <div class="promo-input-row">
-                        <input type="text" id="promo-code-input" placeholder="Enter Coupon Code (e.g. WELCOME10)">
-                        <button class="btn btn-dark" onclick="app.applyPromoCode()">Apply</button>
-                    </div>
-                    <div id="promo-success-msg" class="promo-msg text-yellow hidden"></div>
-                    <div id="promo-error-msg" class="promo-msg text-danger hidden" style="color: var(--accent-red)"></div>
-                </div>
-
-                <!-- Interactive Offers Picker -->
-                <div class="offers-picker-container">
-                    <button class="offers-toggle-btn" id="btn-offers-picker-toggle" onclick="app.toggleOffersPicker(event)">
-                        <i class="fa-solid fa-tags text-yellow"></i> <span>View Available Offers</span> <i class="fa-solid fa-chevron-down toggle-icon" id="offers-chevron"></i>
-                    </button>
-                    <div class="offers-dropdown-list hidden" id="offers-picker-list">
-                        <!-- Dynamic active offers list populated by JS -->
-                    </div>
-                </div>
-            </div>
-
-            <div class="cart-summary">
+            <div class="cart-summary" id="cart-summary-container">
                 <div class="summary-line">
                     <span>Subtotal</span>
                     <span id="summary-subtotal">₹0.00</span>
@@ -763,6 +766,9 @@
             <h3 id="app-loader-text" class="mt-2 text-white">Contacting Database...</h3>
         </div>
     </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="toast-container"></div>
 
     <!-- Main JavaScript Logic -->
     <script src="app.js"></script>
